@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Sample database Stack for ther Parameters section
+Parameters:
+  DbClass:
+    Type: String
+    Description: RDS Instance Class
+  MasterUsername: 
+    Type: String
+    Description: Master username for the  db instance
+  MasterUserPassword: 
+    Type: String
+    Description: Master User Password for the db instance
+  MultiAZ:
+    Type: String
+    Description: ENable Multi AZ?
+  AllocatedStorage: 
+    Type: Number
+    Description: Database Storage in GB
+    
+Resources:
+  # Note: PLease replace the value of vpnID property
+  # with the vpc id of your default VPC
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: vpc-02d732ee640a64229
+      GroupDescription: 'Database instances security group'
+      SecurityGroupIngress:
+        -
+          CidrIp: 0.0.0.0/0
+          FromPort: 3306
+          ToPort: 3306
+          IpProtocol: tcp
+  # Note: PLease replace the caloue pf subnetIds property
+  # with the subnet ids of the subnets in your default VPC
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets to launch db instances into
+      SubnetIds:
+        - subnet-0ef157695c2526918
+        - subnet-032bb6724d52525f8
+        - subnet-0d70eff7fb1fa571e
+        - subnet-004d086070d9b24be
+        - subnet-0654c5c6a272db277
+        - subnet-05e95a8eae1c3be48  
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: !Ref DbClass
+      Engine: mariadb
+      MultiAZ: !Ref MultiAZ
+      PubliclyAccessible: true
+      AllocatedStorage: !Ref AllocatedStorage
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
+
+
